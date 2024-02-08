@@ -1,0 +1,87 @@
+pip install pandas
+pip install openpyxl
+
+import random
+import pandas as pd
+
+#----------建立資料庫-----------
+
+# 全部單字
+df = pd.read_excel("多益單字.xlsx",usecols=["英文", "中文（詞性）"])
+new_df = df[:]  # 索引值0~最後的列資料
+print(new_df)
+
+#-----------新增新字源--------------
+
+excel_file_path = '多益單字.xlsx'
+
+new_english = input("請輸入新的英文: ")
+
+new_chinese = input("請輸入新的中文: ")
+
+new_pos = input("請輸入中文的詞性: ")
+# 組合成中文（詞性）
+new_chinese_pos = f"{new_chinese}（{new_pos}）"
+
+# 將新的資料追加到 DataFrame
+new_data = {'英文': new_english, '中文（詞性）': new_chinese_pos}
+new_df = new_df.append(new_data, ignore_index=True)
+
+# 將更新後的 DataFrame 寫回到 Excel 文件
+new_df.to_excel(excel_file_path, index=False)
+
+print(new_df)
+
+#--------抓取要讀取的英文，並以字典方式呈現------------
+
+# 遍歷每一行，使用英文作為 key，中文（詞性）作為 value
+data_dict = {}
+for index, row in df.iterrows():
+    data_dict[row['英文']] = row['中文（詞性）']
+
+print(data_dict)
+
+#---------創建字典2，用以防止流失資料-------------
+
+Dic2 = data_dict
+Dic3={}
+print(Dic2)
+
+#--------隨機讀取字典並選出英文字，會這個字輸入1，字典刪除字。不會此字按2，字典保留此字，並在下次重新顯示。會了，但是不熟悉按3，字典刪除此字，但將此字保留至另一個字典中，讓程式結束時可以知道哪些字還不熟悉-----------
+
+for _ in range(len(Dic2)):
+    random_key = random.choice(list(Dic2.keys()))
+    random_value = Dic2[random_key]
+
+    print(f'英文：{random_key}')
+
+    check_input = input('請思考一下，然後按下 Enter 鍵顯示對應的中文與詞性。')
+    print(f'其中文與詞性為：{random_value}，你答對了嗎？')
+
+    while True:
+
+        user_input = input('是否答對上述的詞？ (yes：1/no：2/Learned : 3): ')
+
+        if user_input.lower() == '1':
+            del Dic2[random_key]
+            print('Congraulations，next question, please ! ! !')
+            break
+        elif user_input.lower() == '2':
+            print('Sorry, cheer up, next question, please ! ! !')
+            break
+        elif user_input.lower() == '3':
+            del Dic2[random_key]
+            iknown = {random_key : random_value}
+            Dic3.update(iknown)
+            print('You learned this word but not too familiar!')
+            break
+        else:
+            print('Please enter a valid option, re-enter 1 or 2。')
+
+if not Dic2:
+    print("You finished all the exercises ! ! !")
+
+#------秀出字典2，用以檢查是否所有字都學習到。秀出字典3，以確認哪些是屬於不熟悉的字-------
+
+print(Dic2)
+print(Dic3)
